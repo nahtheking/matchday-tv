@@ -141,6 +141,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean heroShown;
     private boolean animations;
     private boolean advancedEffects;
+    /** tilt_focus: the tile carries the focus itself, so the glass slab only shows in reorder mode. */
+    private boolean tiltFocus;
     private TextView greeting;
     private View clockBlock;
     private View btnInputs;
@@ -310,6 +312,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         COLUMNS = cfg.columns;
         animations = cfg.animations;
         advancedEffects = cfg.animations && cfg.advancedEffects;
+        tiltFocus = cfg.animations && cfg.tiltFocus;
         reducedMotion = cfg.reducedMotion;
         dockRow = cfg.dockRow;
         festival = cfg.festival;
@@ -953,6 +956,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         reordering = true;
         orderAtStart = adapter.movableKeys();
         glass.setAccent(REORDER_ACCENT);
+        if (tiltFocus && glassShown) glass.setAlpha(1f);
         btnReorder.setActivated(true);
         return true;
     }
@@ -1062,6 +1066,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         reordering = false;
         adapter.setReordering(false);
         glass.setAccent(festive ? festival.accentColor() : 0);
+        if (tiltFocus) glass.setAlpha(0f);
         btnReorder.setActivated(false);
         List<String> keys = adapter.movableKeys();
         List<String> before = orderAtStart;
@@ -1212,8 +1217,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             springY.cancel();
             glass.setTranslationX(x);
             glass.setTranslationY(y);
-            if (animations) glass.animate().alpha(1f).setDuration(reducedMotion ? 100 : 180).start();
-            else glass.setAlpha(1f);
+            float shown = tiltFocus && !reordering ? 0f : 1f;
+            if (animations) glass.animate().alpha(shown).setDuration(reducedMotion ? 100 : 180).start();
+            else glass.setAlpha(shown);
             glassShown = true;
         } else if (!animations) {
             springX.cancel();
