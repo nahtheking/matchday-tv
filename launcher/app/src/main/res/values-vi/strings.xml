@@ -68,4 +68,9 @@
     <string name="dock_edit">Chỉnh sửa dock</string>
     <string name="dock_edit_hint">Chọn vị trí trên dock cần đổi rồi nhấn OK. Nhấn Quay lại để kết thúc.</string>
     <string name="dock_edit_pick_app">Giờ chọn ứng dụng để đặt vào đó rồi nhấn OK. Nhấn Quay lại để chọn vị trí khác.</string>
+    <string name="match_teams">%1$s vs %2$s</string>
+    <string name="match_kickoff_in">%1$s · bóng lăn sau %2$s</string>
+    <string name="match_live">%1$s · đang đá</string>
+    <string name="match_full_time">%1$s · hết giờ</string>
+    <string name="match_kickoff_at">Giờ bóng lăn  %1$s</string>
 </resources>

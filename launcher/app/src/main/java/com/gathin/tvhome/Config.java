@@ -122,6 +122,8 @@ final class Config {
     final Festival festival;
     /** F1 weekends from a theme's race_calendar (see RaceWeekend); empty when the theme has none. */
     final List<RaceWeekend.Race> raceCalendar;
+    /** A club's matches from a theme's football_fixtures (see MatchDay); empty when the theme has none. */
+    final List<MatchDay.Match> footballFixtures;
     /** Cinematic top shelf (config.xml, cinematic_home): the focused dock app's artwork behind a larger shelf. */
     final boolean cinematicHome;
     /** The glow in the focused app's colour behind the dock (config.xml, ambient_glow); false keeps the background plain. */
@@ -141,7 +143,7 @@ final class Config {
                    int wallpaperRotationMinutes, int wallpaperDim, String wallpaperOrder, boolean overlayApplied,
                    Festival festival, int[] inputKeycodes, List<String> appKeys,
                    List<RaceWeekend.Race> raceCalendar, boolean cinematicHome, boolean ambientGlow, int homeIdleClockMinutes,
-                   boolean tiltFocus) {
+                   boolean tiltFocus, List<MatchDay.Match> footballFixtures) {
         this.inputKeycodes = inputKeycodes;
         this.appKeys = Collections.unmodifiableList(appKeys);
         this.dockApps = Collections.unmodifiableList(dockApps);
@@ -193,6 +195,7 @@ final class Config {
         this.ambientGlow = ambientGlow;
         this.homeIdleClockMinutes = homeIdleClockMinutes;
         this.tiltFocus = tiltFocus;
+        this.footballFixtures = Collections.unmodifiableList(footballFixtures);
     }
 
     /** The folder the theme tools push into; null when external storage is unavailable. */
@@ -353,7 +356,8 @@ final class Config {
                 Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, wallpaperEnabled, wallpaper,
                 wallpapers, rotationMinutes, wallpaperDim, wallpaperOrder, applied,
                 festival, inputKeycodes, appKeys, json == null ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow,
-                Math.max(0, idleClockMinutes), tiltFocus);
+                Math.max(0, idleClockMinutes), tiltFocus,
+                json == null ? Collections.emptyList() : footballFixtures(json));
     }
 
     /**
@@ -384,6 +388,30 @@ final class Config {
                     r.optString("name", "Grand Prix").trim(), r.optString("place", "").trim(), parsed));
         }
         return races;
+    }
+
+    /**
+     * {@code "football_fixtures": [{"home": "Man United", "away": "Bournemouth", "competition": "Premier League",
+     * "venue": "Old Trafford", "kickoff": "2026-10-25T14:00:00Z"}, ...]}. A match that does not parse is left
+     * out on its own.
+     */
+    private static List<MatchDay.Match> footballFixtures(JSONObject json) {
+        List<MatchDay.Match> matches = new ArrayList<>();
+        JSONArray list = json.optJSONArray("football_fixtures");
+        if (list == null) return matches;
+        for (int i = 0; i < list.length(); i++) {
+            JSONObject m = list.optJSONObject(i);
+            if (m == null) continue;
+            String home = m.optString("home", "").trim(), away = m.optString("away", "").trim();
+            if (home.isEmpty() || away.isEmpty()) continue;
+            try {
+                matches.add(new MatchDay.Match(home, away, m.optString("competition", "").trim(),
+                        m.optString("venue", "").trim(), java.time.Instant.parse(m.optString("kickoff", ""))));
+            } catch (java.time.format.DateTimeParseException ignored) {
+                // a match without a readable kick-off cannot be counted down
+            }
+        }
+        return matches;
     }
 
     private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {

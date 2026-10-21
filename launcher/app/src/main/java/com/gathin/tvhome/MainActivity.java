@@ -154,6 +154,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView shamsiDate;
     private TextView stats;
     private List<RaceWeekend.Race> raceCalendar;
+    private List<MatchDay.Match> footballFixtures;
     private View racePanel;
     private TextView raceKicker, raceHeadline, raceSessions;
     /** config.xml show_stats, overridable by a theme. Off: the line is gone and nothing is read. */
@@ -361,6 +362,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         shamsiDate = findViewById(R.id.shamsiDate);
         stats = findViewById(R.id.stats);
         raceCalendar = cfg.raceCalendar;
+        footballFixtures = cfg.footballFixtures;
         racePanel = findViewById(R.id.racePanel);
         raceKicker = findViewById(R.id.raceKicker);
         raceHeadline = findViewById(R.id.raceHeadline);
@@ -1947,10 +1949,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * nothing animates, so the panel costs the GPU nothing between ticks.
      */
     private void updateRace() {
-        if (raceCalendar.isEmpty()) return;
-        RaceWeekend.State s = RaceWeekend.at(raceCalendar, java.time.Instant.now());
+        if (raceCalendar.isEmpty() && footballFixtures.isEmpty()) return;
+        java.time.Instant now = java.time.Instant.now();
+        RaceWeekend.State s = raceCalendar.isEmpty() ? null : RaceWeekend.at(raceCalendar, now);
         if (s == null) {
-            racePanel.setVisibility(View.GONE);
+            updateMatch(now);
             return;
         }
         RaceWeekend.Race race = s.race;
@@ -1990,6 +1993,33 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             row.setSpan(new android.text.style.ForegroundColorSpan(color), start, row.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         raceSessions.setText(row);
+        racePanel.setVisibility(View.VISIBLE);
+    }
+
+    /** The match-day panel (a theme's football_fixtures) in the same place and style, when no race is on. */
+    private void updateMatch(java.time.Instant now) {
+        MatchDay.State m = footballFixtures.isEmpty() ? null : MatchDay.at(footballFixtures, now);
+        if (m == null) {
+            racePanel.setVisibility(View.GONE);
+            return;
+        }
+        MatchDay.Match match = m.match;
+        raceKicker.setText(match.venue.isEmpty() ? match.competition
+                : match.competition.isEmpty() ? match.venue : match.competition + " · " + match.venue);
+        String teams = getString(R.string.match_teams, match.home, match.away);
+        if (m.live) {
+            SpannableString live = new SpannableString("\u25CF  " + getString(R.string.match_live, teams));
+            live.setSpan(new android.text.style.ForegroundColorSpan(RACE_RED), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            raceHeadline.setText(live);
+        } else if (m.untilKickoff != null) {
+            raceHeadline.setText(getString(R.string.match_kickoff_in, teams, RaceWeekend.countdown(m.untilKickoff)));
+        } else {
+            raceHeadline.setText(getString(R.string.match_full_time, teams));
+        }
+        java.time.format.DateTimeFormatter when = java.time.format.DateTimeFormatter.ofPattern(
+                android.text.format.DateFormat.is24HourFormat(this) ? "EEE HH:mm" : "EEE h:mm a", Locale.getDefault())
+                .withZone(java.time.ZoneId.systemDefault());
+        raceSessions.setText(getString(R.string.match_kickoff_at, when.format(match.kickoff)).toUpperCase(Locale.getDefault()));
         racePanel.setVisibility(View.VISIBLE);
     }
 

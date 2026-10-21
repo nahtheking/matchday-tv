@@ -103,4 +103,9 @@
     <string name="race_live">%1$s · בשידור חי</string>
     <string name="race_finished">הדגל המשובץ</string>
     <string name="last_opened">נפתח לאחרונה %1$s</string>
+    <string name="match_teams">%1$s נגד %2$s</string>
+    <string name="match_kickoff_in">%1$s · שריקת הפתיחה בעוד %2$s</string>
+    <string name="match_live">%1$s · בשידור חי</string>
+    <string name="match_full_time">%1$s · סיום המשחק</string>
+    <string name="match_kickoff_at">שריקת הפתיחה  %1$s</string>
 </resources>
