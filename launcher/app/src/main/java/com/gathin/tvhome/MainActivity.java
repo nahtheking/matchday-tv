@@ -1257,14 +1257,28 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 else grid.smoothScrollBy(0, dy);
             }
             showHero(position, scroll ? r.top - dy : r.top);
+            showRacePanel(true);
         } else {
             // Below the dock (or in a plain grid) the glow follows the tile without the big name; letting it
             // fade out left the grid on plain black.
             showGlowOnly(position);
+            showRacePanel(false);
             // Scroll just enough so the whole glass (not only the tile) is visible.
             revealRect.set(0, -(int) pad * 2, item.getWidth(), item.getHeight() + (int) pad);
             grid.requestChildRectangleOnScreen(item, revealRect, reducedMotion);
         }
+    }
+
+    /**
+     * The race and match-day panel belongs to the dock view: once the grid slides up over it, it fades out so the
+     * tiles do not sit on top of its text, and it comes back with the dock. Alpha only; updateRace() still decides
+     * whether it is shown at all.
+     */
+    private void showRacePanel(boolean shown) {
+        float alpha = shown ? 1f : 0f;
+        racePanel.animate().cancel();
+        if (!animations || reducedMotion) racePanel.setAlpha(alpha);
+        else racePanel.animate().alpha(alpha).setDuration(shown ? 220 : 140).start();
     }
 
     /** Refits the glass to the focused holder once the grid layout and tile dimensions settle. */
