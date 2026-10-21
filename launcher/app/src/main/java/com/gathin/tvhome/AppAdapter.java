@@ -422,7 +422,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         h.card.setTranslationZ(focused && advancedEffects ? 8f * ctx.getResources().getDisplayMetrics().density : 0f);
         h.banner.setScaleX(focused && advancedEffects ? 1.035f : 1f);
         h.banner.setScaleY(focused && advancedEffects ? 1.035f : 1f);
-        if (!focused) TiltFocus.clear(h.card);
+        if (!focused) TiltFocus.clear(h.card, h.banner, h.icon);
         // A fully opaque banner covers the whole card (centerCrop), so the card's own fill under it is drawn for
         // nothing on every frame; keep it under banners with transparent parts and under icon tiles.
         h.card.setBackground(e.banner != null && e.banner.getOpacity() == PixelFormat.OPAQUE ? null : h.cardBackground);
@@ -736,7 +736,10 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             .translationY(focused ? density * 4f : -density * 6f)
                             .setDuration(220).start();
                 }
-                if (tiltFocus) TiltFocus.apply(view, focused, reducedMotion, cornerRadius(view.getWidth(), density), density);
+                if (tiltFocus) {
+                    View art = banner.getVisibility() == View.VISIBLE ? banner : icon;
+                    TiltFocus.apply(view, art, focused, reducedMotion, cornerRadius(view.getWidth(), density), density);
+                }
                 int pos = getBindingAdapterPosition();
                 if (focused && listener != null && pos != RecyclerView.NO_POSITION) {
                     listener.onTileFocused(pos, view);
