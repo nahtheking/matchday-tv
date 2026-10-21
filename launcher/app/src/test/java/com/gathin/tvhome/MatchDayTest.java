@@ -17,9 +17,9 @@ public class MatchDayTest {
 
     // Two Manchester United fixtures four days apart, kick-offs as ESPN gives them (UTC).
     private static final MatchDay.Match COMO = new MatchDay.Match("Como", "Man United",
-            "UEFA Champions League", "Giuseppe Sinigaglia", Instant.parse("2026-10-21T16:45:00Z"));
+            "UEFA Champions League", "Giuseppe Sinigaglia", Instant.parse("2026-10-21T16:45:00Z"), "2572.png", "360.png");
     private static final MatchDay.Match BOURNEMOUTH = new MatchDay.Match("Man United", "Bournemouth",
-            "Premier League", "Old Trafford", Instant.parse("2026-10-25T14:00:00Z"));
+            "Premier League", "Old Trafford", Instant.parse("2026-10-25T14:00:00Z"), "360.png", "349.png");
     // Out of order on purpose: the fixtures are sorted by kick-off.
     private static final List<MatchDay.Match> FIXTURES = Arrays.asList(BOURNEMOUTH, COMO);
 

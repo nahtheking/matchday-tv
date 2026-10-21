@@ -406,12 +406,19 @@ final class Config {
             if (home.isEmpty() || away.isEmpty()) continue;
             try {
                 matches.add(new MatchDay.Match(home, away, m.optString("competition", "").trim(),
-                        m.optString("venue", "").trim(), java.time.Instant.parse(m.optString("kickoff", ""))));
+                        m.optString("venue", "").trim(), java.time.Instant.parse(m.optString("kickoff", "")),
+                        crestName(m.optString("home_crest", "")), crestName(m.optString("away_crest", ""))));
             } catch (java.time.format.DateTimeParseException ignored) {
                 // a match without a readable kick-off cannot be counted down
             }
         }
         return matches;
+    }
+
+    /** A crest file name from football_fixtures, or "" unless it is a plain image name ThemeFiles would accept. */
+    private static String crestName(String name) {
+        String n = name.trim();
+        return ThemeFiles.collectionImage(n) ? n : "";
     }
 
     private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {

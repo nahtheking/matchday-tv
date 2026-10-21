@@ -157,6 +157,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private List<MatchDay.Match> footballFixtures;
     private View racePanel;
     private TextView raceKicker, raceHeadline, raceSessions;
+    private View matchRow;
+    private ImageView matchHomeCrest, matchAwayCrest;
+    private TextView matchHomeName, matchAwayName, matchCentre, matchDay;
+    /** Decoded crests by file name; a theme push restarts Home, so the cache never outlives its files. */
+    private final java.util.Map<String, android.graphics.Bitmap> crests = new java.util.HashMap<>();
     /** config.xml show_stats, overridable by a theme. Off: the line is gone and nothing is read. */
     private boolean showStats;
     private boolean shamsi;
@@ -367,6 +372,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         raceKicker = findViewById(R.id.raceKicker);
         raceHeadline = findViewById(R.id.raceHeadline);
         raceSessions = findViewById(R.id.raceSessions);
+        matchRow = findViewById(R.id.matchRow);
+        matchHomeCrest = findViewById(R.id.matchHomeCrest);
+        matchAwayCrest = findViewById(R.id.matchAwayCrest);
+        matchHomeName = findViewById(R.id.matchHomeName);
+        matchAwayName = findViewById(R.id.matchAwayName);
+        matchCentre = findViewById(R.id.matchCentre);
+        matchDay = findViewById(R.id.matchDay);
         showStats = cfg.showStats;
         shamsi = cfg.shamsiDate;
         greetingName = cfg.greetingName;
@@ -1957,6 +1969,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return;
         }
         RaceWeekend.Race race = s.race;
+        matchRow.setVisibility(View.GONE);
+        raceHeadline.setVisibility(View.VISIBLE);
+        raceSessions.setVisibility(View.VISIBLE);
         raceKicker.setText(race.place.isEmpty()
                 ? getString(R.string.race_kicker_no_place, race.round, race.shortName())
                 : getString(R.string.race_kicker, race.round, race.shortName(), race.place));
@@ -2006,21 +2021,46 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         MatchDay.Match match = m.match;
         raceKicker.setText(match.venue.isEmpty() ? match.competition
                 : match.competition.isEmpty() ? match.venue : match.competition + " · " + match.venue);
-        String teams = getString(R.string.match_teams, match.home, match.away);
+        raceHeadline.setVisibility(View.GONE);
+        raceSessions.setVisibility(View.GONE);
+        showCrest(matchHomeCrest, match.homeCrest);
+        showCrest(matchAwayCrest, match.awayCrest);
+        matchHomeName.setText(match.home);
+        matchAwayName.setText(match.away);
         if (m.live) {
-            SpannableString live = new SpannableString("\u25CF  " + getString(R.string.match_live, teams));
+            SpannableString live = new SpannableString("\u25CF " + getString(R.string.match_live));
             live.setSpan(new android.text.style.ForegroundColorSpan(RACE_RED), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            raceHeadline.setText(live);
+            matchCentre.setText(live);
+            matchDay.setText("");
         } else if (m.untilKickoff != null) {
-            raceHeadline.setText(getString(R.string.match_kickoff_in, teams, RaceWeekend.countdown(m.untilKickoff)));
+            java.time.ZoneId zone = java.time.ZoneId.systemDefault();
+            matchCentre.setText(java.time.format.DateTimeFormatter.ofPattern(
+                    android.text.format.DateFormat.is24HourFormat(this) ? "HH:mm" : "h:mm a", Locale.getDefault())
+                    .withZone(zone).format(match.kickoff));
+            matchDay.setText(java.time.format.DateTimeFormatter.ofPattern("EEE", Locale.getDefault())
+                    .withZone(zone).format(match.kickoff));
         } else {
-            raceHeadline.setText(getString(R.string.match_full_time, teams));
+            matchCentre.setText(R.string.match_full_time);
+            matchDay.setText("");
         }
-        java.time.format.DateTimeFormatter when = java.time.format.DateTimeFormatter.ofPattern(
-                android.text.format.DateFormat.is24HourFormat(this) ? "EEE HH:mm" : "EEE h:mm a", Locale.getDefault())
-                .withZone(java.time.ZoneId.systemDefault());
-        raceSessions.setText(getString(R.string.match_kickoff_at, when.format(match.kickoff)).toUpperCase(Locale.getDefault()));
+        matchRow.setVisibility(View.VISIBLE);
         racePanel.setVisibility(View.VISIBLE);
+    }
+
+    /** A crest from the theme's crests/ folder, or nothing when the theme has none for this club. */
+    private void showCrest(ImageView view, String name) {
+        android.graphics.Bitmap bmp = null;
+        if (!name.isEmpty()) {
+            if (crests.containsKey(name)) {
+                bmp = crests.get(name);
+            } else {
+                File dir = Config.dir(this);
+                if (dir != null) bmp = android.graphics.BitmapFactory.decodeFile(new File(new File(dir, ThemeFiles.CRESTS), name).getPath());
+                crests.put(name, bmp);
+            }
+        }
+        view.setImageBitmap(bmp);
+        view.setVisibility(bmp == null ? View.INVISIBLE : View.VISIBLE);
     }
 
     private void refreshPillsAfterNextDraw() {

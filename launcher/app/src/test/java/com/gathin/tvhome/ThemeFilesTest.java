@@ -22,6 +22,11 @@ public class ThemeFilesTest {
         assertEquals("wallpapers/Night_2.WEBP", ThemeFiles.path(Arrays.asList("wallpapers", "Night_2.WEBP")));
     }
 
+    @Test public void crestsAreAllowed() {
+        assertEquals("crests/360.png", ThemeFiles.path(Arrays.asList("crests", "360.png")));
+        assertNull(ThemeFiles.path(Arrays.asList("crests", "../config.json")));
+    }
+
     @Test public void anythingElseIsRefused() {
         assertNull(ThemeFiles.path(null));
         assertNull(ThemeFiles.path(Collections.emptyList()));

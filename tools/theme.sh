@@ -72,6 +72,17 @@ if [ -d "$THEME/wallpapers" ]; then
     esac
   done
 fi
+# Club crests for the match-day panel (tools/football_fixtures.py), replaced as a set like the wallpapers.
+tv "mkdir -p $DIR/crests 2>/dev/null; rm -f $DIR/crests/*.png 2>/dev/null" >/dev/null
+if [ -d "$THEME/crests" ]; then
+  for IMAGE in "$THEME"/crests/*.png; do
+    [ -f "$IMAGE" ] || continue
+    NAME=$(basename "$IMAGE")
+    [[ "$NAME" =~ ^[A-Za-z0-9_.-]+$ ]] || { echo "unsupported crest filename: $NAME" >&2; exit 1; }
+    "$PY" -I b64push.py "$IMAGE" "$(stage "crests/$NAME")"
+    tv "$(put "crests/$NAME")" >/dev/null
+  done
+fi
 tv "printf '%s' '$REVISION' > $TMP-theme_revision; $(put theme_revision)" >/dev/null
 tv "$RESTART; echo applied" | tail -n 1
 echo "Theme $(basename "$THEME") is on the TV. Undo with: tools/theme.sh --reset"

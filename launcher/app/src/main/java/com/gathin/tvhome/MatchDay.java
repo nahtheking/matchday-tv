@@ -27,13 +27,19 @@ final class MatchDay {
         final String competition;
         final String venue;
         final Instant kickoff;
+        /** File names in the theme's crests/ folder; empty when the fixture names none. */
+        final String homeCrest;
+        final String awayCrest;
 
-        Match(String home, String away, String competition, String venue, Instant kickoff) {
+        Match(String home, String away, String competition, String venue, Instant kickoff,
+              String homeCrest, String awayCrest) {
             this.home = home;
             this.away = away;
             this.competition = competition;
             this.venue = venue;
             this.kickoff = kickoff;
+            this.homeCrest = homeCrest;
+            this.awayCrest = awayCrest;
         }
     }
 

@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 /** The files ThemeProvider may write or delete under Config.dir, by the URI's path segments. */
 final class ThemeFiles {
     static final String WALLPAPERS = "wallpapers";
+    /** Club crests for the match-day panel, written by tools/football_fixtures.py. */
+    static final String CRESTS = "crests";
     /** The names tools/theme.sh accepts for a collection image, and the types WallpaperRotation reads. */
     private static final Pattern IMAGE = Pattern.compile("[A-Za-z0-9_.-]+\\.(jpg|jpeg|png|webp)",
             Pattern.CASE_INSENSITIVE);
@@ -22,6 +24,9 @@ final class ThemeFiles {
         }
         if (segments.size() == 2 && WALLPAPERS.equals(segments.get(0)) && collectionImage(segments.get(1))) {
             return WALLPAPERS + "/" + segments.get(1);
+        }
+        if (segments.size() == 2 && CRESTS.equals(segments.get(0)) && collectionImage(segments.get(1))) {
+            return CRESTS + "/" + segments.get(1);
         }
         return null;
     }

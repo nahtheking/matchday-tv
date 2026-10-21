@@ -4,10 +4,11 @@
     football_fixtures.py <theme folder>              Manchester United, every competition
     football_fixtures.py <theme folder> --team 364   another club by its ESPN team id (364 is Liverpool)
 
-It writes football_fixtures into <theme folder>/config.json, keeping every other key. Then push the theme as
-usual: tools/theme.sh <theme folder>. The launcher never goes online; this script is the only thing that does,
-once, on your computer. The data comes from ESPN's public site API: no key, no account, but not a documented
-service, so it can change without notice. Run it again every few weeks, or when a kick-off is moved for TV.
+It writes football_fixtures into <theme folder>/config.json, keeping every other key, and each club's crest
+as a small PNG into <theme folder>/crests/. Then push the theme as usual: tools/theme.sh <theme folder>.
+The launcher never goes online; this script is the only thing that does, once, on your computer. The data
+comes from ESPN's public site API: no key, no account, but not a documented service, so it can change without
+notice. Run it again every few weeks, or when a kick-off is moved for TV.
 Matches that are already over are left out.
 """
 import argparse
@@ -18,6 +19,8 @@ import sys
 import urllib.request
 
 API = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/{team}/schedule?fixture=true"
+# ESPN's image resizer: a 128 px crest is about 10 KB, enough for the panel on a 1080p screen.
+CREST = "https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/{id}.png&w=128&h=128"
 MANCHESTER_UNITED = "360"
 
 
@@ -30,6 +33,35 @@ def kickoff(event):
 def name(competitor):
     team = competitor.get("team", {})
     return team.get("shortDisplayName") or team.get("displayName") or "?"
+
+
+def crest_file(competitor):
+    """The crest's file name in crests/, by ESPN team id; None when ESPN gives no id."""
+    team_id = str(competitor.get("team", {}).get("id", ""))
+    return f"{team_id}.png" if team_id.isdigit() else None
+
+
+def fetch(url):
+    request = urllib.request.Request(url, headers={"User-Agent": "cleanyourtv"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return response.read()
+
+
+def download_crests(matches, folder):
+    """Writes every crest the fixtures name into folder, dropping crests no fixture uses any more."""
+    wanted = {m[k] for m in matches for k in ("home_crest", "away_crest") if m.get(k)}
+    folder.mkdir(parents=True, exist_ok=True)
+    for old in folder.glob("*.png"):
+        if old.name not in wanted:
+            old.unlink()
+    for file in sorted(wanted):
+        target = folder / file
+        if target.is_file() and target.stat().st_size > 0:
+            continue
+        try:
+            target.write_bytes(fetch(CREST.format(id=file[:-4])))
+        except OSError as e:
+            print(f"crest {file}: {e}", file=sys.stderr)
 
 
 def fixtures(events, now):
@@ -50,6 +82,8 @@ def fixtures(events, now):
         out.append({
             "home": name(sides["home"]),
             "away": name(sides["away"]),
+            "home_crest": crest_file(sides["home"]),
+            "away_crest": crest_file(sides["away"]),
             "competition": league.get("shortName") or league.get("name") or "",
             "venue": (match.get("venue") or {}).get("fullName", ""),
             "kickoff": start,
@@ -66,9 +100,7 @@ def main():
 
     config = Path(args.theme) / "config.json"
     theme = json.loads(config.read_text(encoding="utf-8")) if config.is_file() else {}
-    request = urllib.request.Request(API.format(team=args.team), headers={"User-Agent": "cleanyourtv"})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        data = json.load(response)
+    data = json.loads(fetch(API.format(team=args.team)))
     club = (data.get("team") or {}).get("displayName", f"team {args.team}")
     now = datetime.datetime.now(datetime.timezone.utc)
     matches = fixtures(data.get("events", []), now)
@@ -77,6 +109,7 @@ def main():
     theme["football_fixtures"] = matches
     config.parent.mkdir(parents=True, exist_ok=True)
     config.write_text(json.dumps(theme, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    download_crests(matches, Path(args.theme) / "crests")
     first = matches[0]
     print(f"{len(matches)} {club} fixtures -> {config}")
     print(f"next: {first['home']} vs {first['away']}, {first['competition']}, {first['kickoff']}")
