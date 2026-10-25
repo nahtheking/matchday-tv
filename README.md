@@ -6,6 +6,23 @@ launcher) and adds the things a fan looks at every day: your club's next match u
 crests of both sides, a home screen that reacts when you move, and a Control Center on the remote's
 Settings button.
 
+<p align="center">
+  <img src="docs/matchday/home.jpg" alt="Matchday TV home screen: clock, greeting and the next match under it with both crests and the kick-off time, above the app dock" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/matchday/tilt.jpg" alt="The focused YouTube tile leaning toward the D-pad move"></td>
+    <td width="50%"><img src="docs/matchday/control-center.jpg" alt="Control Center panel on the right with the time, Network, Inputs, Sound, Display, TV settings, Apps, Launcher settings and Turn off"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Tilt focus</sub></td>
+    <td align="center"><sub>Control Center</sub></td>
+  </tr>
+</table>
+
+<sub>Screenshots from a TCL 55P8LS with the launcher in Vietnamese. The match shown is a demo fixture between two made-up clubs.</sub>
+
 > Not affiliated with any football club, league or broadcaster. Club names and crests belong to their
 > owners. This repository ships no crests or club artwork: `tools/football_fixtures.py` downloads the
 > crests for your own fixtures onto your computer when you run it, and they only go to your own TV.
