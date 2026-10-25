@@ -1,3 +1,48 @@
+# Matchday TV
+
+**A home screen for football fans on Android TV and Google TV, built on [cleanyourtv](https://github.com/Gathin23/cleanyourtv).**
+It keeps everything cleanyourtv does (debloat over Wi-Fi, no root, a one-line restore, an Apple TV style
+launcher) and adds the things a fan looks at every day: your club's next match under the clock, the
+crests of both sides, a home screen that reacts when you move, and a Control Center on the remote's
+Settings button.
+
+> Not affiliated with any football club, league or broadcaster. Club names and crests belong to their
+> owners. This repository ships no crests or club artwork: `tools/football_fixtures.py` downloads the
+> crests for your own fixtures onto your computer when you run it, and they only go to your own TV.
+
+## What it adds
+
+| | |
+|---|---|
+| **Match day panel** | From 12 hours before kick-off, the space under the clock shows both crests with the club names under them and the kick-off time between them; "live" for the two halves, then "full time". It fades away while you browse the app grid. |
+| **Any club** | `tools/football_fixtures.py <theme> --team <ESPN id>` writes your club's fixtures (every competition) and crests into a theme; Manchester United (360) is the default. Run it again every few weeks. The launcher itself never goes online. |
+| **Tilt focus** | The focused tile leans toward the D-pad move and swings back flat, with a glass rim, a specular highlight and artwork parallax. Edge tiles grow inward. Measured smoother than the floating glass slab it replaces on a TCL 55P8LS. |
+| **Control Center** | The remote's Settings button (or the Settings pill) slides in a panel with the time, Wi-Fi, Inputs, Sound, Display, TV settings, Apps, Launcher settings and Turn off. Nothing runs while it is closed. |
+| **Glass details** | A thin sheen on the top bar pills and the dock band. |
+
+## Quick start
+
+1. Set up your TV with cleanyourtv's prompt and tools as described below (debloat, then
+   `launcher/build-and-install.sh`).
+2. Pull your club into the example theme and push it:
+
+   ```bash
+   python3 tools/football_fixtures.py themes/matchday --team 360
+   TV_HOST=192.168.1.50 tools/theme.sh themes/matchday
+   ```
+
+   Find your club's ESPN id in the address of its ESPN team page (`.../team/_/id/360/...`).
+
+## Credit
+
+Matchday TV is a fork of [cleanyourtv](https://github.com/Gathin23/cleanyourtv) by
+[@Gathin23](https://github.com/Gathin23) and its contributors, under the same MIT licence. Fixes that
+are not football specific go upstream first.
+
+Everything below is the cleanyourtv README, kept as it is.
+
+---
+
 <p align="center">
   <a href="https://cleanyour.tv"><img src="https://raw.githubusercontent.com/Gathin23/cleanyourtv/main/docs/banner.png" alt="CleanYourTV. Your TV, minus the ads. Strip the bloatware from any Android TV or Google TV over Wi-Fi and replace the ad-filled home screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled, and a one-line restore." width="800"></a>
 </p>
