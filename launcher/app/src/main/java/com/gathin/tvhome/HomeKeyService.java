@@ -2,6 +2,7 @@ package com.gathin.tvhome;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
@@ -20,6 +21,9 @@ import java.util.Map;
  */
 public class HomeKeyService extends AccessibilityService {
 
+    /** The connected service, for Control Center's Turn off row; null while the service is off. */
+    private static HomeKeyService running;
+
     /** Remote buttons that should open Settings (config.xml, settings_key_scancodes and settings_key_keycodes). */
     private int[] settingsScancodes = new int[0];
     private int[] settingsKeycodes = new int[0];
@@ -28,9 +32,26 @@ public class HomeKeyService extends AccessibilityService {
     private Map<Integer, String> appKeys = Collections.emptyMap();
     private Map<Integer, String> appScancodes = Collections.emptyMap();
 
+    /** True when the service is bound and can put the TV to sleep (the lock screen action, Android 9 and up). */
+    static boolean canSleep() {
+        return running != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
+    }
+
+    /** Puts the TV to sleep the way the power button does on Android TV, through the lock screen action. */
+    static void sleep() {
+        if (canSleep()) running.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (running == this) running = null;
+        super.onDestroy();
+    }
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        running = this;
         settingsScancodes = getResources().getIntArray(R.array.settings_key_scancodes);
         // Keycodes and the panel choice can also come from a theme; theme.sh restarts this service.
         Config config = Config.load(this);

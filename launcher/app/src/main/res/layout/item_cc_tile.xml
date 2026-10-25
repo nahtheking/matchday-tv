@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One Control Center tile: icon, name and a status line. QuickSettingsActivity lays it out square in the
+     two-column rows and as a wide row below them. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:minHeight="66dp"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:background="@drawable/cc_tile_bg"
+    android:paddingStart="14dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:focusable="true"
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/ccIcon"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:duplicateParentState="true"
+        android:tint="@color/cc_tile_text"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:id="@+id/ccText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="vertical"
+        android:duplicateParentState="true">
+
+        <TextView
+            android:id="@+id/ccLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="true"
+            android:singleLine="true"
+            android:textColor="@color/cc_tile_text"
+            android:textSize="13sp"
+            android:fontFamily="@font/outfit_medium" />
+
+        <TextView
+            android:id="@+id/ccSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:duplicateParentState="true"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/cc_tile_sub"
+            android:textSize="10sp"
+            android:fontFamily="@font/outfit_regular" />
+    </LinearLayout>
+</LinearLayout>
