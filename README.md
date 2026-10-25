@@ -50,6 +50,41 @@ Settings button.
 
    Find your club's ESPN id in the address of its ESPN team page (`.../team/_/id/360/...`).
 
+### Where the match data comes from
+
+`tools/football_fixtures.py` reads your club's schedule and crests from ESPN's public site API
+(`site.api.espn.com`). It needs no key and no account, but ESPN doesn't document it, so it can change
+or stop without notice. The script runs once on your computer and writes plain JSON and PNG files into
+the theme; the launcher on the TV never goes online. If the API changes, you can still write the
+fixtures by hand (below), or point the script at another source: all the launcher reads is
+`football_fixtures` in `config.json` and the images in `crests/`.
+
+### Try the panel before match day
+
+The panel only shows from 12 hours before kick-off. To see it now, write one made-up match into a theme's
+`config.json` with a kick-off a few hours from now (UTC, ending in `Z`), and push it with `tools/theme.sh`:
+
+```json
+{
+  "tilt_focus": true,
+  "settings_key_panel": true,
+  "football_fixtures": [
+    {
+      "home": "Red FC",
+      "away": "Blue United",
+      "competition": "Demo League",
+      "venue": "Riverside Stadium",
+      "kickoff": "2026-10-25T16:15:00Z",
+      "home_crest": "red.png",
+      "away_crest": "blue.png"
+    }
+  ]
+}
+```
+
+Crests are optional: put square PNGs with those names in the theme's `crests/` folder, or leave the two
+`_crest` keys out and the panel shows the names alone. The screenshots above were taken this way.
+
 ## Credit
 
 Matchday TV is a fork of [cleanyourtv](https://github.com/Gathin23/cleanyourtv) by
