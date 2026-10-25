@@ -18,6 +18,10 @@
     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
          apps that declare a module card (docs/specs/card.md). -->
     <queries>
+        <!-- Control Center's Sound tile asks whether the TV has Android TV's sound panel before opening it. -->
+        <intent>
+            <action android:name="com.android.tv.action.VIEW_SOUND_SETTINGS" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

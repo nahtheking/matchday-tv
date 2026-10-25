@@ -33,6 +33,8 @@ public final class QuickSettingsActivity extends Activity {
 
     /** Sent to the TV's own Inputs panel (com.tcl.suspension on TCL Google TV). */
     private static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
+    /** Android TV's sound panel (com.tcl.settings.SoundActivity on TCL); the phone action opens a full settings page. */
+    private static final String ACTION_VIEW_SOUND = "com.android.tv.action.VIEW_SOUND_SETTINGS";
 
     private LinearLayout tiles;
     private LinearLayout pair;
@@ -55,7 +57,8 @@ public final class QuickSettingsActivity extends Activity {
         tiles = findViewById(R.id.tiles);
         addTile(R.drawable.ic_wifi, getString(R.string.quick_network), networkStatus(), new Intent(Settings.ACTION_WIFI_SETTINGS), false);
         addTile(R.drawable.ic_input, getString(R.string.inputs), null, new Intent(ACTION_VIEW_INPUTS), false);
-        addTile(R.drawable.ic_sound, getString(R.string.quick_sound), null, new Intent(Settings.ACTION_SOUND_SETTINGS), false);
+        addTile(R.drawable.ic_sound, getString(R.string.quick_sound), null, firstAnswered(new Intent(ACTION_VIEW_SOUND),
+                new Intent(Settings.ACTION_SOUND_SETTINGS)), false);
         addTile(R.drawable.ic_picture, getString(R.string.quick_picture), null, new Intent(Settings.ACTION_DISPLAY_SETTINGS), false);
         addTile(R.drawable.ic_settings, getString(R.string.tv_settings), null, new Intent(Settings.ACTION_SETTINGS), true);
         addTile(R.drawable.ic_apps, getString(R.string.quick_apps), getString(R.string.quick_apps_hint),
@@ -86,6 +89,14 @@ public final class QuickSettingsActivity extends Activity {
         super.onPause();
         finish();
         overridePendingTransition(0, 0);
+    }
+
+    /** The first intent some activity answers, or the last one so the tile still reports "not available". */
+    private Intent firstAnswered(Intent... intents) {
+        for (Intent i : intents) {
+            if (getPackageManager().resolveActivity(i, 0) != null) return i;
+        }
+        return intents[intents.length - 1];
     }
 
     /** The network name when Wi-Fi is up, "Ethernet", or offline. Read once, when the panel opens. */
